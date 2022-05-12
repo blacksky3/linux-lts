@@ -1,0 +1,583 @@
+# _     _            _        _          _____
+#| |__ | | __ _  ___| | _____| | ___   _|___ /
+#| '_ \| |/ _` |/ __| |/ / __| |/ / | | | |_ \
+#| |_) | | (_| | (__|   <\__ \   <| |_| |___) |
+#|_.__/|_|\__,_|\___|_|\_\___/_|\_\\__, |____/
+#                                  |___/
+
+#Maintainer: blacksky3 <blacksky3@tuta.io> <https://github.com/blacksky3>
+#Credits: Jan Alexander Steffens (heftig) <heftig@archlinux.org>
+#Credits: Andreas Radke <andyrtr@archlinux.org>
+
+################################# Arch ################################
+
+ARCH=x86
+
+################################# CC/CXX/HOSTCC/HOSTCXX ################################
+
+#Set compiler to build the kernel
+#Set '1' to build with GCC
+#Set '2' to build with CLANG and LLVM
+#Default is empty. It will build with GCC. To build with different compiler just use : env _compiler=(1 or 2) makepkg -s
+if [ -z ${_compiler+x} ]; then
+  _compiler=
+fi
+
+if [[ "$_compiler" = "1" ]]; then
+  _compiler=1
+  CC=gcc
+  CXX=g++
+  HOSTCC=gcc
+  HOSTCXX=g++
+elif [[ "$_compiler" = "2" ]]; then
+  _compiler=2
+  CC=clang
+  CXX=clang++
+  HOSTCC=clang
+  HOSTCXX=clang++
+else
+  _compiler=1
+  CC=gcc
+  CXX=g++
+  HOSTCC=gcc
+  HOSTCXX=g++
+fi
+
+###################################################################################
+
+pkgbase=linux-lts-cacule
+pkgname=("$pkgbase" "$pkgbase-headers")
+for _p in "${pkgname[@]}"; do
+  eval "package_$_p() {
+    $(declare -f "_package${_p#$pkgbase}")
+    _package${_p#$pkgbase}
+  }"
+done
+pkgver=5.15.39
+pkgrel=1
+major=5.15
+arch=(x86_64)
+url='https://www.kernel.org/'
+license=(GPL-2.0)
+makedepends=(bison flex bc kmod libelf pahole cpio perl tar xz zstd xmlto git gcc gcc-libs glibc binutils make patch)
+if [[ "$_compiler" = "2" ]]; then
+  makedepends+=(clang llvm llvm-libs lld)
+fi
+options=(!strip)
+
+archlinuxpath=https://raw.githubusercontent.com/archlinux/svntogit-packages/824c2eaaa31627d12e7f3f9c36309b05c1d3bd3d/trunk
+patchpath=https://raw.githubusercontent.com/blacksky3/patches/main/$major
+
+source=(https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz
+        ${archlinuxpath}/config
+        # BORE patch
+        ${patchpath}/cacule/0001-CacULE-5.15.patch
+        # AMD P-State patches
+        ${patchpath}/amd-pstate/0001-x86-cpufeatures-add-AMD-Collaborative-Processor-Perf.patch
+        ${patchpath}/amd-pstate/0002-x86-msr-add-AMD-CPPC-MSR-definitions.patch
+        ${patchpath}/amd-pstate/0003-ACPI-CPPC-implement-support-for-SystemIO-registers.patch
+        #${patchpath}/amd-pstate/0004-ACPI-CPPC-Check-present-CPUs-for-determining-_CPC-is.patch
+        ${patchpath}/amd-pstate/0005-ACPI-CPPC-add-cppc-enable-register-function.patch
+        ${patchpath}/amd-pstate/0006-cpufreq-amd-pstate-introduce-a-new-AMD-P-State-drive.patch
+        ${patchpath}/amd-pstate/0007-cpufreq-amd-pstate-add-fast-switch-function-for-AMD-.patch
+        ${patchpath}/amd-pstate/0008-cpufreq-amd-pstate-introduce-the-support-for-the-pro.patch
+        ${patchpath}/amd-pstate/0009-cpufreq-amd-pstate-add-trace-for-AMD-P-State-module.patch
+        ${patchpath}/amd-pstate/0010-cpufreq-amd-pstate-add-boost-mode-support-for-AMD-P-.patch
+        ${patchpath}/amd-pstate/0011-cpufreq-amd-pstate-add-AMD-P-State-frequencies-attri.patch
+        ${patchpath}/amd-pstate/0012-cpufreq-amd-pstate-add-AMD-P-State-performance-attri.patch
+        ${patchpath}/amd-pstate/0013-Documentation-AMD-P-State-add-AMD-P-State-driver-int.patch
+        ${patchpath}/amd-pstate/0014-MAINTAINERS-add-AMD-P-State-driver-maintainer-entry.patch
+        # AMD64 patches
+        ${patchpath}/amd64/0001-amd64-patches-v2.patch
+        # Arch patches
+        ${patchpath}/arch/0001-ZEN-Add-sysctl-and-CONFIG-to-disallow-unprivileged-C.patch
+        ${patchpath}/arch/0002-PCI-Add-more-NVIDIA-controllers-to-the-MSI-masking-q.patch
+        ${patchpath}/arch/0003-iommu-intel-do-deep-dma-unmapping-to-avoid-kernel-fl.patch
+        #${patchpath}/arch/0004-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch
+        ${patchpath}/arch/0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch
+        ${patchpath}/arch/0006-lg-laptop-Recognize-more-models.patch
+        # Block patches. Set BFQ as default
+        ${patchpath}/block/0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch
+        ${patchpath}/block/0002-block-Fix-depends-for-BLK_DEV_ZONED.patch
+        ${patchpath}/block/0002-LL-elevator-set-default-scheduler-to-bfq-for-blk-mq.patch
+        ${patchpath}/block/0003-LL-elevator-always-use-bfq-unless-overridden-by-flag.patch
+        # CPU patches
+        ${patchpath}/cpu/0002-init-Kconfig-enable-O3-for-all-arches.patch
+        ${patchpath}/cpu/0004-Makefile-Turn-off-loop-vectorization-for-GCC-O3-opti.patch
+        # Futex
+        ${patchpath}/futex/0001-futex-Implement-sys_futex_waitv.patch
+        ${patchpath}/futex/0002-futex-x86-Wire-up-sys_futex_waitv.patch
+        ${patchpath}/futex/0003-futex-Add-entry-point-for-FUTEX_WAIT_MULTIPLE-opcode.patch
+        # Wine
+        ${patchpath}/wine/0001-winesync-Introduce-the-winesync-driver-and-character.patch
+        # Graysky2 CPU patch
+        https://raw.githubusercontent.com/graysky2/kernel_compiler_patch/master/more-uarches-for-kernel-5.15-5.16.patch)
+
+export KBUILD_BUILD_HOST=archlinux
+export KBUILD_BUILD_USER=$pkgbase
+export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EPOCH})"
+
+prepare(){
+  cd "${srcdir}"/linux-$pkgver
+
+  # Apply any patch
+  local src
+  for src in "${source[@]}"; do
+    src="${src%%::*}"
+    src="${src##*/}"
+    [[ $src = *.patch ]] || continue
+    msg2 "Applying patch $src..."
+    patch -Np1 < "../$src"
+  done
+
+  plain ""
+
+  # Copy the config file first
+  # Copy "${srcdir}"/config to "${srcdir}"/linux-${pkgver}/.config
+  msg2 "Copy "${srcdir}"/config to "${srcdir}"/linux-$pkgver/.config"
+  cp "${srcdir}"/config .config
+
+  sleep 2s
+
+  plain ""
+
+  # Disable LTO with clang
+  if [[ "$_compiler" = "2" ]]; then
+    msg2 "Disable LTO"
+    scripts/config --disable CONFIG_LTO
+    scripts/config --disable CONFIG_LTO_CLANG
+    scripts/config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG
+    scripts/config --disable CONFIG_ARCH_SUPPORTS_LTO_CLANG_THIN
+    scripts/config --disable CONFIG_HAS_LTO_CLANG
+    scripts/config --disable CONFIG_LTO_NONE
+    scripts/config --disable CONFIG_LTO_CLANG_FULL
+    scripts/config --disable CONFIG_LTO_CLANG_THIN
+
+    sleep 2s
+  fi
+
+  msg "Base config"
+
+  msg2 "Set kernel compression mode to ZSTD"
+  scripts/config --enable CONFIG_HAVE_KERNEL_GZIP
+  scripts/config --enable CONFIG_HAVE_KERNEL_BZIP2
+  scripts/config --enable CONFIG_HAVE_KERNEL_LZMA
+  scripts/config --enable CONFIG_HAVE_KERNEL_XZ
+  scripts/config --enable CONFIG_HAVE_KERNEL_LZO
+  scripts/config --enable CONFIG_HAVE_KERNEL_LZ4
+  scripts/config --enable CONFIG_HAVE_KERNEL_ZSTD
+  scripts/config --enable CONFIG_HAVE_KERNEL_UNCOMPRESSED
+
+  scripts/config --disable CONFIG_KERNEL_GZIP
+  scripts/config --disable CONFIG_KERNEL_BZIP2
+  scripts/config --disable CONFIG_KERNEL_LZMA
+  scripts/config --disable CONFIG_KERNEL_XZ
+  scripts/config --disable CONFIG_KERNEL_LZO
+  scripts/config --disable CONFIG_KERNEL_LZ4
+  scripts/config --enable CONFIG_KERNEL_ZSTD
+  scripts/config --disable CONFIG_KERNEL_UNCOMPRESSED
+
+  sleep 2s
+
+  msg2 "Set module signature algorithm"
+  scripts/config --enable CONFIG_MODULE_SIG
+  scripts/config --undefine MODULE_SIG_FORCE
+  scripts/config --disable MODULE_SIG_FORCE
+  scripts/config --enable CONFIG_MODULE_SIG_ALL
+  scripts/config --disable CONFIG_MODULE_SIG_SHA1
+  scripts/config --disable CONFIG_MODULE_SIG_SHA224
+  scripts/config --disable CONFIG_MODULE_SIG_SHA256
+  scripts/config --disable CONFIG_MODULE_SIG_SHA384
+  scripts/config --enable CONFIG_MODULE_SIG_SHA512
+  scripts/config  --set-val CONFIG_MODULE_SIG_HASH "sha512"
+
+  sleep 2s
+
+  msg2 "Set module compression to ZSTD"
+  scripts/config --disable CONFIG_MODULE_COMPRESS_NONE
+  scripts/config --disable CONFIG_MODULE_COMPRESS_GZIP
+  scripts/config --disable CONFIG_MODULE_COMPRESS_XZ
+  scripts/config --enable CONFIG_MODULE_COMPRESS_ZSTD
+
+  sleep 2s
+
+  msg2 "Enable CONFIG_STACK_VALIDATION"
+  scripts/config --enable CONFIG_STACK_VALIDATION
+
+  sleep 2s
+
+  msg2 "Enable IKCONFIG"
+  scripts/config --enable CONFIG_IKCONFIG
+  scripts/config --enable CONFIG_IKCONFIG_PROC
+
+  sleep 2s
+
+  msg2 "Disable NUMA"
+  scripts/config --disable CONFIG_NUMA
+  scripts/config --disable CONFIG_AMD_NUMA
+  scripts/config --disable CONFIG_X86_64_ACPI_NUMA
+  scripts/config --disable CONFIG_NODES_SPAN_OTHER_NODES
+  scripts/config --disable CONFIG_NUMA_EMU
+  scripts/config --disable CONFIG_NEED_MULTIPLE_NODES
+  scripts/config --disable CONFIG_USE_PERCPU_NUMA_NODE_ID
+  scripts/config --disable CONFIG_ACPI_NUMA
+  scripts/config --disable CONFIG_ARCH_SUPPORTS_NUMA_BALANCING
+  scripts/config --disable CONFIG_NODES_SHIFT
+  scripts/config --undefine CONFIG_NODES_SHIFT
+  scripts/config --disable CONFIG_NEED_MULTIPLE_NODES
+
+  sleep 2s
+
+  msg2 "Disable FUNCTION_TRACER/GRAPH_TRACER"
+  scripts/config --disable CONFIG_FUNCTION_TRACER
+  scripts/config --disable CONFIG_STACK_TRACER
+
+  sleep 2s
+
+  msg2 "Setting performance governor"
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_SCHEDUTIL
+  scripts/config --enable CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE
+  scripts/config --enable CONFIG_CPU_FREQ_GOV_PERFORMANCE
+
+  sleep 2s
+
+  msg2 "Disabling uneeded governors"
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_POWERSAVE
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_USERSPACE
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_ONDEMAND
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_CONSERVATIVE
+  scripts/config --disable CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
+  scripts/config --disable CONFIG_CPU_FREQ_GOV_SCHEDUTIL
+
+  sleep 2s
+
+  msg2 "Set CPU DEVFREQ GOV CONFIG_DEVFREQ_GOV for performance"
+  scripts/config --disable CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND
+  scripts/config --undefine CONFIG_DEVFREQ_GOV_SIMPLE_ONDEMAND
+  scripts/config --disable CONFIG_DEVFREQ_GOV_POWERSAVE
+  scripts/config --disable CONFIG_DEVFREQ_GOV_USERSPACE
+  scripts/config --disable CONFIG_DEVFREQ_GOV_PASSIVE
+  scripts/config --enable CONFIG_DEVFREQ_GOV_PERFORMANCE
+
+  sleep 2s
+
+  msg2 "Set PCIEASPM DRIVER to performance"
+  scripts/config --enable CONFIG_PCIEASPM
+  scripts/config --enable CONFIG_PCIEASPM_PERFORMANCE
+
+  sleep 2s
+
+  msg2 "Set CONFIG_PCIE_BUS for performance"
+  scripts/config --enable CONFIG_PCIE_BUS_PERFORMANCE
+
+  sleep 2s
+
+  msg2 "Set timer frequency to 1000HZ"
+  scripts/config --enable CONFIG_HZ_1000
+  scripts/config --set-val CONFIG_HZ 1000
+
+  sleep 2s
+
+  msg2 "Set to full tickless (by TK-Glitch)"
+
+  #periodic ticks
+  #scripts/config --disable CONFIG_NO_HZ_FULL_NODEF
+  #scripts/config --disable CONFIG_NO_HZ_IDLE
+  #scripts/config --disable CONFIG_NO_HZ_FULL
+  #scripts/config --disable CONFIG_NO_HZ
+  #scripts/config --disable CONFIG_NO_HZ_COMMON
+  #scripts/config --enable CONFIG_HZ_PERIODIC
+
+  #full tickless
+  scripts/config --disable CONFIG_HZ_PERIODIC
+  scripts/config --disable CONFIG_NO_HZ_IDLE
+  scripts/config --disable CONFIG_CONTEXT_TRACKING_FORCE
+  scripts/config --enable CONFIG_NO_HZ_FULL_NODEF
+  scripts/config --enable CONFIG_NO_HZ_FULL
+  scripts/config --enable CONFIG_NO_HZ
+  scripts/config --enable CONFIG_NO_HZ_COMMON
+  scripts/config --enable CONFIG_CONTEXT_TRACKING
+
+  #tickless idle
+  #scripts/config --disable CONFIG_NO_HZ_FULL_NODEF
+  #scripts/config --disable CONFIG_HZ_PERIODIC
+  #scripts/config --disable CONFIG_NO_HZ_FULL
+  #scripts/config --enable CONFIG_NO_HZ_IDLE
+  #scripts/config --enable CONFIG_NO_HZ
+  #scripts/config --enable CONFIG_NO_HZ_COMMON
+
+  sleep 2s
+
+  msg2 "Disable some debugging (by TK-Glitch)"
+  scripts/config --disable CONFIG_SLUB_DEBUG
+  scripts/config --disable CONFIG_PM_DEBUG
+  scripts/config --disable CONFIG_PM_ADVANCED_DEBUG
+  scripts/config --disable CONFIG_PM_SLEEP_DEBUG
+  scripts/config --disable CONFIG_ACPI_DEBUG
+  scripts/config --disable CONFIG_SCHED_DEBUG
+  scripts/config --disable CONFIG_LATENCYTOP
+  scripts/config --disable CONFIG_DEBUG_PREEMPT
+
+  sleep 2s
+
+  msg2 "Disabling Kyber I/O scheduler"
+  scripts/config --disable CONFIG_MQ_IOSCHED_KYBER
+
+  sleep 2s
+
+  msg2 "Enable Intel Processor P-State driver"
+  scripts/config --enable CONFIG_X86_INTEL_PSTATE
+
+  sleep 2s
+
+  msg2 "Enable Fsync support"
+  scripts/config --enable CONFIG_FUTEX
+  scripts/config --enable CONFIG_FUTEX_PI
+
+  sleep 2s
+
+  msg2 "Add anbox support"
+  scripts/config --enable CONFIG_ASHMEM
+  # CONFIG_ION is not set
+  scripts/config --enable CONFIG_ANDROID
+  scripts/config --enable CONFIG_ANDROID_BINDER_IPC
+  scripts/config --enable CONFIG_ANDROID_BINDERFS
+  scripts/config --set-str CONFIG_ANDROID_BINDER_DEVICES "binder,hwbinder,vndbinder"
+  # CONFIG_ANDROID_BINDER_IPC_SELFTEST is not set
+
+  sleep 2s
+
+  msg2 "Set CONFIG_GENERIC_CPU"
+  scripts/config --enable CONFIG_GENERIC_CPU
+
+  sleep 2s
+
+  msg "Patch addition config"
+
+  msg2 "Enable CONFIG_USER_NS_UNPRIVILEGED"
+  scripts/config --enable CONFIG_USER_NS
+
+  sleep 2s
+
+  msg2 "Enable CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3"
+  scripts/config --disable CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE
+  scripts/config --disable CONFIG_CC_OPTIMIZE_FOR_SIZE
+  scripts/config --enable CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
+
+  sleep 2s
+
+  msg2 "Enable AMD Processor P-State driver"
+  scripts/config --enable CONFIG_X86_AMD_PSTATE
+
+  sleep 2s
+
+  msg2 "Enable winesync"
+  scripts/config --enable CONFIG_WINESYNC
+
+  sleep 2s
+
+  msg2 "Enable CacULE CPU Scheduler"
+  scripts/config --enable CONFIG_CACULE_SCHED
+
+  sleep 2s
+
+  msg2 "Disable RDB (Response Driven Balancer)"
+  scripts/config --disable CONFIG_CACULE_RDB
+
+  sleep 2s
+
+  msg2 "Set timer frequency to 2000HZ"
+  scripts/config --enable CONFIG_HZ_2000
+  scripts/config --set-val CONFIG_HZ 2000
+
+  sleep 2s
+
+  plain ""
+
+  # Setting localversion
+  msg2 "Setting localversion..."
+  scripts/setlocalversion --save-scmversion
+  echo "-${pkgbase}" > localversion
+
+  plain ""
+
+  # Config
+  if [[ "$_compiler" = "1" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} olddefconfig
+  elif [[ "$_compiler" = "2" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} LLVM=1 LLVM_IAS=1 HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} olddefconfig
+  fi
+
+  plain ""
+
+  make -s kernelrelease > version
+  msg2 "Prepared $pkgbase version $(<version)"
+
+  plain ""
+}
+
+build(){
+  cd "${srcdir}"/linux-$pkgver
+
+  # make -j$(nproc) all
+  msg2 "make -j$(nproc) all..."
+  if [[ "$_compiler" = "1" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} -j$(nproc) all
+  elif [[ "$_compiler" = "2" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} LLVM=1 LLVM_IAS=1 HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} -j$(nproc) all
+  fi
+}
+
+_package(){
+  pkgdesc='The Linux kernel and modules with Hamad Al Marri CacULE CPU scheduler (kept alive artificially by SM9CC <me@sm9.dev>), AMD-Pstate, AMD, Arch, Block, CPU, Futex, Wine and kernel_compiler_patch patch'
+  depends=(coreutils kmod initramfs)
+  optdepends=('wireless-regdb: to set the correct wireless channels of your country'
+              'linux-firmware: firmware images needed for some devices')
+  provides=(KSMBD-MODULE NTFS3-MODULE VIRTUALBOX-GUEST-MODULES WIREGUARD-MODULE)
+
+  cd "${srcdir}"/linux-$pkgver
+
+  local kernver="$(<version)"
+  local modulesdir="${pkgdir}"/usr/lib/modules/${kernver}
+
+  msg2 "Installing boot image..."
+  # systemd expects to find the kernel here to allow hibernation
+  # https://github.com/systemd/systemd/commit/edda44605f06a41fb86b7ab8128dcf99161d2344
+  #install -Dm644 arch/${ARCH}/boot/bzImage "$modulesdir/vmlinuz"
+  install -Dm644 "$(make -s image_name)" "$modulesdir/vmlinuz"
+
+  # Used by mkinitcpio to name the kernel
+  echo "$pkgbase" | install -Dm644 /dev/stdin "$modulesdir/pkgbase"
+
+  msg2 "Installing modules..."
+  if [[ "$_compiler" = "1" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} INSTALL_MOD_PATH="${pkgdir}"/usr INSTALL_MOD_STRIP=1 DEPMOD=/doesnt/exist -j$(nproc) modules_install # Suppress depmod
+  elif [[ "$_compiler" = "2" ]]; then
+    make ARCH=${ARCH} CC=${CC} CXX=${CXX} LLVM=1 LLVM_IAS=1 HOSTCC=${HOSTCC} HOSTCXX=${HOSTCXX} INSTALL_MOD_PATH="${pkgdir}"/usr INSTALL_MOD_STRIP=1 DEPMOD=/doesnt/exist -j$(nproc) modules_install # Suppress depmod
+  fi
+
+  # remove build and source links
+  msg2 "Remove build dir and source dir..."
+  rm -rf "$modulesdir"/{source,build}
+}
+
+_package-headers(){
+  pkgdesc="Headers and scripts for building modules for the $pkgbase package"
+  depends=("${pkgbase}" pahole)
+
+  cd "${srcdir}"/linux-$pkgver
+
+  local builddir="$pkgdir"/usr/lib/modules/"$(<version)"/build
+
+  msg2 "Installing build files..."
+  install -Dt "$builddir" -m644 .config Makefile Module.symvers System.map *localversion* version vmlinux
+  install -Dt "$builddir/kernel" -m644 kernel/Makefile
+  install -Dt "$builddir/arch/x86" -m644 arch/x86/Makefile
+  cp -t "$builddir" -a scripts
+
+  # add objtool for external module building and enabled VALIDATION_STACK option
+  install -Dt "$builddir/tools/objtool" tools/objtool/objtool
+
+  # add xfs and shmem for aufs building
+  mkdir -p "$builddir"/{fs/xfs,mm}
+
+  msg2 "Installing headers..."
+  cp -t "$builddir" -a include
+  cp -t "$builddir/arch/x86" -a arch/x86/include
+  install -Dt "$builddir/arch/x86/kernel" -m644 arch/x86/kernel/asm-offsets.s
+
+  install -Dt "$builddir/drivers/md" -m644 drivers/md/*.h
+  install -Dt "$builddir/net/mac80211" -m644 net/mac80211/*.h
+
+  # https://bugs.archlinux.org/task/13146
+  install -Dt "$builddir/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+
+  # https://bugs.archlinux.org/task/20402
+  install -Dt "$builddir/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+  install -Dt "$builddir/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+  install -Dt "$builddir/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+
+  # https://bugs.archlinux.org/task/71392
+  install -Dt "$builddir/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
+
+  msg2 "Installing KConfig files..."
+  find . -name 'Kconfig*' -exec install -Dm644 {} "$builddir/{}" \;
+
+  msg2 "Removing unneeded architectures..."
+  local arch
+  for arch in "$builddir"/arch/*/; do
+    [[ $arch = */x86/ ]] && continue
+    msg2 "Removing $(basename "$arch")"
+    rm -r "$arch"
+  done
+
+  msg2 "Removing documentation..."
+  rm -r "$builddir/Documentation"
+
+  msg2 "Removing broken symlinks..."
+  find -L "$builddir" -type l -printf 'Removing %P\n' -delete
+
+  msg2 "Removing loose objects..."
+  find "$builddir" -type f -name '*.o' -printf 'Removing %P\n' -delete
+
+  msg2 "Stripping build tools..."
+  local file
+  while read -rd '' file; do
+    case "$(file -bi "$file")" in
+      application/x-sharedlib\;*)      # Libraries (.so)
+        strip -v $STRIP_SHARED "$file" ;;
+      application/x-archive\;*)        # Libraries (.a)
+        strip -v $STRIP_STATIC "$file" ;;
+      application/x-executable\;*)     # Binaries
+        strip -v $STRIP_BINARIES "$file" ;;
+      application/x-pie-executable\;*) # Relocatable binaries
+        strip -v $STRIP_SHARED "$file" ;;
+    esac
+  done < <(find "$builddir" -type f -perm -u+x ! -name vmlinux -print0)
+
+  msg2 "Stripping vmlinux..."
+  strip -v $STRIP_STATIC "$builddir/vmlinux"
+
+  msg2 "Adding symlink..."
+  mkdir -p "$pkgdir/usr/src"
+  ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
+}
+
+sha256sums=('888641634f9e0e38cd0efcfec92ea3c126d381b24a514740d3fe3dc9988fd7ad'
+            '0949fcb547814192136cf3327aa85e0c737dae239535a23e6b5395ecc763ea1d'
+            'dc3b7da8303f11addb25e13ae78d5e39c86e39dd27271991adb558f2c91f0aa5'
+            '0f687dcbbecba41f624b03fb544082d5587e722b4920321bfd36ac61d038b8ea'
+            'd9d121b7620f6c374fc0a793b33890ba25617e345236b09d1f6e5910344835f0'
+            '98d29e68a9f970defab137d6058f75209efdc2739e06241a5b26f1b58ff54409'
+            'ade211013109c6cfc1c7a213f68efbe6487d038d3a26352de7bd48e3d8757ab8'
+            'd399a3b76155ecfbf124532696a32f174e50237a8a057f182ae33d8b3bb3036d'
+            '78c55f6223350bf700d4a435d12d94542d6caedaf67676ca23b03515807b8990'
+            '98b995784c9180304de9fb268a42d2f371ce97312ba0003a5424994d89c26d43'
+            'f13ecee1c705d4282126a48b75fe97be04599ef347818b1a44d9190465cf4187'
+            '7aeb32e413bb0ce78124af8b48bfcf08fc7f9a2bae47d3f2cf120225d318d5a0'
+            '07f2de483a69073ff0346e58e729618f9b4d1fe691b24a74f597519488925209'
+            'a353c60f990168dfdb301aad65539c00aa19a1b39290c2ad2cec796e667e431e'
+            '44808ec8f0e5f748781c45c45b874371357e45fd833c18bbffb0fe15a5d52b82'
+            '542f86b5fd00c9cb692c5533efbebb14cf9adfc7b8ae683b2dedadcb079cba5b'
+            '3fbb1429afcdd874c0168f2f4b9e6ae11f81ffb47e447723eef038bab2c3e928'
+            'abde988e4145d774aa78aa06c5300ec4a37ee8856774750fc62bb8caf8b4f5ff'
+            '499e44cf508440b851f7637d6757ac31954a60ca697b1844cec8bde9182c5730'
+            '4faf7bf503ea135440e0525db66c29ed86cb8cc7fe7025a5a4eb1f4b92c156a7'
+            '2679386a9a834cbbbcc57925b21e824a52e4d695a471720f0c5e28d41238cdef'
+            'f32a33450ca308525bcc475e48ef30a860bffbda71762632337eb534a2fbc282'
+            'b3434b546e4bd6b62c64685da1a7ecfaf6d3b6172b3ab0c217c6a998a68b2368'
+            'b75c8a1721dda647496da98eea65c94f796667f8dee2f75a08e12dbbb2bed09a'
+            '3f37ca67531f98821c7c463e1938b778d5df640f29a2c8002ad5482277736069'
+            'a6a5d7d24966db0e0bfaa41821d48952e2242439a6a6688e3931464d0335d122'
+            '051cbbbebaab19743a549033907dc3eb607e4db8813f8a22d8348b6ddab61d15'
+            'fefdf9ba2de8d0e47762cb62bb1c5203f628d24591d3b2790da7107362297573'
+            '23958b10de61714b68d5f908f996d736ddf673a66852bcc9d92a34896e6575b8'
+            'a63bcaa5425c0a689ad095ac7fb308284dbc46c70ac1d3c02d1953b6bad00c3e'
+            'a22bbaad5447a0f0c3870be1791d00fb3712ba265ad5a3b04ecbfa1020618359'
+            '3f58fa4e0b63b97643054888750732c96ecce38ca6830e561d9c64efe4bf9553'
+            '2893ca70c1812f98cbf1ea1ed0abac7b70c91b21f07c4f6c1816a769bcc34909')
