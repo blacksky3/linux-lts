@@ -28,6 +28,10 @@ cd tt && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
 cd tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
+cd pds && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+
+cd bmq && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+
 # clang
 
 #cd bore && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
@@ -39,3 +43,7 @@ cd tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 #cd tt && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
 #cd tt-cfs && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+
+#cd pds && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+
+#cd bmq && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
