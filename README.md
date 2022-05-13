@@ -1,6 +1,6 @@
 # linux-lts
 
-Linux kernel build for Archlinux with AMD-Pstate, AMD, Arch, Block, CPU, Futex, Wine and kernel_compiler_patch patch.
+Linux kernel build for Archlinux with AMD-Pstate, AMD64, Arch, Block, CPU, Futex, Wine and kernel_compiler_patch patch.
 
 # Version
 
