@@ -15,17 +15,17 @@ echo "${source}"
 
 # update pkgver
 
-oldversion=5.15.39
-newversion=5.15.40
+oldversion=5.15.40
+newversion=5.15.41
 
 sed -i "s/pkgver=$oldversion/pkgver=$newversion/" */PKGBUILD
 
 # update commit
 
 oldcommit=824c2eaaa31627d12e7f3f9c36309b05c1d3bd3d
-newcommit=7fa19a61c535ce503a3569177df61251655a6576
+newcommit=29fd254f786eb86e3eefadccbe6925c62555142a
 
-sed -i "s/pkgver=$oldcommit/pkgver=$newcommit/" */PKGBUILD
+sed -i "s/$oldcommit/$newcommit/" */PKGBUILD
 
 # updpkgsums
 
