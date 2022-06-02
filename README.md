@@ -9,7 +9,7 @@ Linux kernel build for Archlinux with AMD-Pstate, AMD64, Arch, Block, CPU, Futex
 # Build
 
     git clone https://github.com/blacksky3/linux-lts.git
-    cd linux-lts/{bore,cacule,cacule-rdb,tt,tt-cfs,pds,bmq}
+    cd linux-lts/5.15/{bore,cacule,cacule-rdb,tt,tt-cfs,pds,bmq}
     env_compiler=(1 or 2) makepkg -s
 
 # Build variables

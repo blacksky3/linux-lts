@@ -18,32 +18,32 @@ echo "${source}"
 
 # gcc
 
-cd bore && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/bore && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd cacule && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/cacule && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd cacule-rdb && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/cacule-rdb && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd tt && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/tt && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd pds && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/pds && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd bmq && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd 5.15/bmq && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
 # clang
 
-#cd bore && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/bore && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd cacule && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/cacule && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd cacule-rdb && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/cacule-rdb && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd tt && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/tt && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd tt-cfs && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/tt-cfs && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd pds && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/pds && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd bmq && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd 5.15/bmq && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
