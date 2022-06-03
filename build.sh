@@ -11,6 +11,7 @@
 #!/bin/bash
 
 source=$(pwd)
+major=5.18
 
 echo "${source}"
 
@@ -18,32 +19,32 @@ echo "${source}"
 
 # gcc
 
-cd 5.15/bore && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/bore && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/cacule && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/cacule && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/cacule-rdb && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/cacule-rdb && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/tt && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/tt && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/tt-cfs && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/pds && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/pds && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-cd 5.15/bmq && makepkg -s && rm -rf pkg/ src/ && cd ${source}
+cd ${major}/bmq && makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
 # clang
 
-#cd 5.15/bore && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/bore && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/cacule && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/cacule && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/cacule-rdb && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/cacule-rdb && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/tt && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/tt && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/tt-cfs && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/tt-cfs && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/pds && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/pds && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
 
-#cd 5.15/bmq && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}
+#cd ${major}/bmq && env _compiler=2 makepkg -s && rm -rf pkg/ src/ && cd ${source}

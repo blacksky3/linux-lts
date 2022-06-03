@@ -10,21 +10,22 @@
 #!/bin/bash
 
 source=$(pwd)
+major=5.18
 
 echo "${source}"
 
 # updpkgsums
 
-cd bore && updpkgsums && cd ${source}
+cd ${major}/bore && updpkgsums && cd ${source}
 
-cd cacule && updpkgsums && cd ${source}
+cd ${major}/cacule && updpkgsums && cd ${source}
 
-cd cacule-rdb && updpkgsums && cd ${source}
+cd ${major}/cacule-rdb && updpkgsums && cd ${source}
 
-cd tt && updpkgsums && cd ${source}
+cd ${major}/tt && updpkgsums && cd ${source}
 
-cd tt-cfs && updpkgsums && cd ${source}
+cd ${major}/tt-cfs && updpkgsums && cd ${source}
 
-cd pds && updpkgsums && cd ${source}
+cd ${major}/pds && updpkgsums && cd ${source}
 
-cd bmq && updpkgsums && cd ${source}
+cd ${major}/bmq && updpkgsums && cd ${source}
