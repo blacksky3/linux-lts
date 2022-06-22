@@ -53,7 +53,7 @@ for _p in "${pkgname[@]}"; do
     _package${_p#$pkgbase}
   }"
 done
-pkgver=5.15.48
+pkgver=5.15.49
 pkgrel=1
 major=5.15
 arch=(x86_64)
@@ -65,7 +65,7 @@ if [[ "$_compiler" = "2" ]]; then
 fi
 options=(!strip)
 
-archlinuxpath=https://raw.githubusercontent.com/archlinux/svntogit-packages/4a95d1c7722b3a0da15b30cda9d57449277b0139/trunk
+archlinuxpath=https://raw.githubusercontent.com/archlinux/svntogit-packages/c0083d810040d57dbf18d3154d25f7359d67703d/trunk
 patchpath=https://raw.githubusercontent.com/blacksky3/patches/main/$major
 
 source=(https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz
@@ -96,6 +96,7 @@ source=(https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.
         #${patchpath}/arch/0004-cpufreq-intel_pstate-ITMT-support-for-overclocked-sy.patch
         ${patchpath}/arch/0005-Bluetooth-btintel-Fix-bdaddress-comparison-with-garb.patch
         ${patchpath}/arch/0006-lg-laptop-Recognize-more-models.patch
+        ${patchpath}/arch/0006_fix_NFSv4_mount_regression.diff
         # Block patches. Set BFQ as default
         ${patchpath}/block/0001-block-Kconfig.iosched-set-default-value-of-IOSCHED_B.patch
         ${patchpath}/block/0002-block-Fix-depends-for-BLK_DEV_ZONED.patch
@@ -119,6 +120,10 @@ export KBUILD_BUILD_TIMESTAMP="$(date -Ru${SOURCE_DATE_EPOCH:+d @$SOURCE_DATE_EP
 
 prepare(){
   cd "${srcdir}"/linux-$pkgver
+
+  # fix NFSv4 mounting issue regression - FS#73838 / FS#73860
+  # https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/patch/?id=6f2836341d8a39e1e000572b10959347d7e61fd9
+  patch -Rp1 -i ../0006_fix_NFSv4_mount_regression.diff
 
   # Apply any patch
   local src
@@ -543,8 +548,8 @@ _package-headers(){
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
-sha256sums=('19f0075d1b94d6874a2af7127a59b6b6c423fc7d4a883a51415543e7ec1be2a6'
-            'af05290a1719130cef27e15e9f2d483eee86c9d77fd0ec0aef8d4933a8c948f6'
+sha256sums=('32497893ba47f4ad32a59fa4254e8c25e41bc821798e3b2f2443822fa00059dc'
+            '7014a280fcacd1d5d48b6a0b2048ae0a8cc1fac416ba821d489f52eef5700191'
             '930996cdd9b63e3456cc49da4015631717c1c2ec41f879b25a9100e95e0b38fb'
             '0f687dcbbecba41f624b03fb544082d5587e722b4920321bfd36ac61d038b8ea'
             'd9d121b7620f6c374fc0a793b33890ba25617e345236b09d1f6e5910344835f0'
@@ -565,6 +570,7 @@ sha256sums=('19f0075d1b94d6874a2af7127a59b6b6c423fc7d4a883a51415543e7ec1be2a6'
             '4faf7bf503ea135440e0525db66c29ed86cb8cc7fe7025a5a4eb1f4b92c156a7'
             '2679386a9a834cbbbcc57925b21e824a52e4d695a471720f0c5e28d41238cdef'
             'f32a33450ca308525bcc475e48ef30a860bffbda71762632337eb534a2fbc282'
+            'e9527ad81d5b1821a7b17c56cb3abaec85785563f51e448cb3c06f1c68e2966f'
             'b3434b546e4bd6b62c64685da1a7ecfaf6d3b6172b3ab0c217c6a998a68b2368'
             'b75c8a1721dda647496da98eea65c94f796667f8dee2f75a08e12dbbb2bed09a'
             '3f37ca67531f98821c7c463e1938b778d5df640f29a2c8002ad5482277736069'
