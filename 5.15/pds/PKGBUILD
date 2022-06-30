@@ -53,7 +53,7 @@ for _p in "${pkgname[@]}"; do
     _package${_p#$pkgbase}
   }"
 done
-pkgver=5.15.49
+pkgver=5.15.51
 pkgrel=1
 major=5.15
 arch=(x86_64)
@@ -65,7 +65,7 @@ if [[ "$_compiler" = "2" ]]; then
 fi
 options=(!strip)
 
-archlinuxpath=https://raw.githubusercontent.com/archlinux/svntogit-packages/c0083d810040d57dbf18d3154d25f7359d67703d/trunk
+archlinuxpath=https://raw.githubusercontent.com/archlinux/svntogit-packages/f1c022ecb63726dbbf0fa6eecb6c2b7f7bf2c128/trunk
 patchpath=https://raw.githubusercontent.com/blacksky3/patches/main/$major
 
 source=(https://mirrors.edge.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz
@@ -548,8 +548,8 @@ _package-headers(){
   ln -sr "$builddir" "$pkgdir/usr/src/$pkgbase"
 }
 
-sha256sums=('32497893ba47f4ad32a59fa4254e8c25e41bc821798e3b2f2443822fa00059dc'
-            '7014a280fcacd1d5d48b6a0b2048ae0a8cc1fac416ba821d489f52eef5700191'
+sha256sums=('1fba4878b27ef4fd9005e0870cb7aa7c4a051b66575cab102d36184b32a94988'
+            '083f631543f82ce15ce64fcdfcf1edebaf320d731a858d2ae24dff3cf50c0013'
             '930996cdd9b63e3456cc49da4015631717c1c2ec41f879b25a9100e95e0b38fb'
             '0f687dcbbecba41f624b03fb544082d5587e722b4920321bfd36ac61d038b8ea'
             'd9d121b7620f6c374fc0a793b33890ba25617e345236b09d1f6e5910344835f0'
