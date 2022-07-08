@@ -4,7 +4,7 @@ Linux kernel build for Archlinux with AMD-Pstate, AMD64, Arch, Block, CPU, Futex
 
 # Version
 
-- 5.15.52
+- 5.15.53
 
 # Build
 
